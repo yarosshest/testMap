@@ -117,21 +117,23 @@ class HomeState extends State<Home> {
                                 latitude: dots[index].latitude,
                                 longitude: dots[index].longitude,
                                 iconColor: Colors.blue,
-                                child: Stack(
-                                    clipBehavior: Clip.none,
-                                    alignment: AlignmentDirectional.centerStart,
-                                    children: [
-                                      const Positioned(
-                                          child: Icon(Icons.account_balance_outlined)),
-                                      Positioned(
-                                          left: 20,
-                                          child: Text(dots[index].name)),
-                                    ]));
+                                child:
+                                    const Icon(Icons.account_balance_outlined));
+                          },
+                          tooltipSettings: const MapTooltipSettings(
+                              color: Colors.red,
+                              strokeColor: Colors.black,
+                              strokeWidth: 1.5),
+                          markerTooltipBuilder: (BuildContext context, int index) {
+                            return Container(
+                              width: 150,
+                              padding: const EdgeInsets.all(10),
+                              child: Text(dots[index].name),
+                            );
                           },
                           sublayers: [
                             MapShapeSublayer(
                               source: mapSource,
-
                               showDataLabels: true,
                               dataLabelSettings: const MapDataLabelSettings(
                                   overflowMode: MapLabelOverflow.ellipsis,
@@ -141,10 +143,8 @@ class HomeState extends State<Home> {
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                   )),
-
                               strokeWidth: 2,
                               strokeColor: const Color(0xff0873e8),
-
                               selectedIndex: selectedIndex,
                               onSelectionChanged: (int index) {
                                 setState(() {
