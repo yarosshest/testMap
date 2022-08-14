@@ -33,7 +33,8 @@ dependencies:
 
 
   geojson: ^1.0.0
-  syncfusion_flutter_maps: ^20.2.40
+  syncfusion_flutter_maps: ^20.2.43
+  syncfusion_flutter_core: ^20.2.43
   flutter_lints: ^2.0.0
   geojson_vi: ^2.0.7
   flutter_map: ^2.2.0
@@ -74,6 +75,7 @@ flutter:
     - export.geojson
     - ao.geojson
     - aoCrop.geojson
+    - dots.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:
