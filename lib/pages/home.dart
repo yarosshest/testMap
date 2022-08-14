@@ -111,6 +111,23 @@ class HomeState extends State<Home> {
                               'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           initialFocalLatLng: const MapLatLng(55.7751, 37.5421),
                           zoomPanBehavior: zoomPanBehavior,
+                          initialMarkersCount: dots.length,
+                          markerBuilder: (BuildContext context, int index) {
+                            return MapMarker(
+                                latitude: dots[index].latitude,
+                                longitude: dots[index].longitude,
+                                iconColor: Colors.blue,
+                                child: Stack(
+                                    clipBehavior: Clip.none,
+                                    alignment: AlignmentDirectional.centerStart,
+                                    children: [
+                                      const Positioned(
+                                          child: Icon(Icons.account_balance_outlined)),
+                                      Positioned(
+                                          left: 20,
+                                          child: Text(dots[index].name)),
+                                    ]));
+                          },
                           sublayers: [
                             MapShapeSublayer(
                               source: mapSource,
@@ -134,12 +151,6 @@ class HomeState extends State<Home> {
                                   selectedIndex = index;
                                 });
                               },
-                              // shapeTooltipBuilder: (BuildContext context, int index){
-                              //     return Padding(
-                              //       padding: const EdgeInsets.all(7),
-                              //       child: Text(features[index].name),
-                              //     );
-                              // },
                               selectionSettings: const MapSelectionSettings(
                                 color: Color(0x400e2283),
                                 strokeColor: Colors.red,
