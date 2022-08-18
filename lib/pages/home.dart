@@ -4,6 +4,7 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:testflask/pages/post.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -20,11 +21,12 @@ class Polygon {
 }
 
 class Dot {
-  const Dot(this.name, this.latitude, this.longitude);
+  const Dot(this.name, this.latitude, this.longitude, this.data);
 
   final String name;
   final double latitude;
   final double longitude;
+  final Map data;
 }
 
 class HomeState extends State<Home> {
@@ -37,6 +39,7 @@ class HomeState extends State<Home> {
   int selectedIndex = -1;
 
   Future<void> readJson() async {
+    // Чтение полигонов областей
     String response = await rootBundle.loadString('ao.geojson');
     var data = await json.decode(response)["features"];
 
@@ -50,6 +53,7 @@ class HomeState extends State<Home> {
       }
     }
 
+    // Чтение объектов
     response = await rootBundle.loadString('dots.json');
     data = await json.decode(response)["features"];
 
@@ -57,8 +61,8 @@ class HomeState extends State<Home> {
       var prop = i["properties"];
       var geom = i["geometry"];
       if (!dots.contains(prop["NAME"]) && prop["NAME"] != null) {
-        dots.add(
-            Dot(prop["NAME"], geom["coordinates"][1], geom["coordinates"][0]));
+        dots.add(Dot(prop["NAME"], geom["coordinates"][1],
+            geom["coordinates"][0], prop["data"]));
       }
     }
 
@@ -89,7 +93,6 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey,
         appBar: AppBar(
           title: const Text("Карта"),
           centerTitle: true,
@@ -97,8 +100,9 @@ class HomeState extends State<Home> {
         body: FutureBuilder(builder: (BuildContext context, snapshot) {
           if (loading) {
             return Padding(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(0),
                 child: SfMapsTheme(
+                    //Параметры выделения областей
                     data: SfMapsThemeData(
                       shapeHoverColor: const Color(0xC6282840),
                       shapeHoverStrokeColor: Colors.black,
@@ -112,29 +116,47 @@ class HomeState extends State<Home> {
                           initialFocalLatLng: const MapLatLng(55.7751, 37.5421),
                           zoomPanBehavior: zoomPanBehavior,
                           initialMarkersCount: dots.length,
+
+                          //Параметры создания маркеров
                           markerBuilder: (BuildContext context, int index) {
                             return MapMarker(
                                 latitude: dots[index].latitude,
                                 longitude: dots[index].longitude,
-                                iconColor: Colors.blue,
-                                child:
-                                    const Icon(Icons.account_balance_outlined));
+                                //Нажимаемый маркер
+                                child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Post(
+                                                  data: dots[index].data)));
+                                      // Navigator.pushNamed(context, "/post" , arguments:dots[index].data);
+                                    },
+                                    child: const Icon(
+                                      Icons.shield_outlined,
+                                      color: Colors.blue,
+                                    )));
                           },
+                          //Параметры карточки маркера при наведении
                           tooltipSettings: const MapTooltipSettings(
+                              hideDelay: 15.0,
                               color: Colors.red,
                               strokeColor: Colors.black,
                               strokeWidth: 1.5),
-                          markerTooltipBuilder: (BuildContext context, int index) {
+
+                          //Карточка маркера при наведении
+                          markerTooltipBuilder:
+                              (BuildContext context, int index) {
                             return Container(
-                              width: 150,
-                              padding: const EdgeInsets.all(10),
-                              child: Text(dots[index].name),
-                            );
+                                padding: const EdgeInsets.all(10),
+                                child: Text(dots[index].name));
                           },
                           sublayers: [
                             MapShapeSublayer(
                               source: mapSource,
                               showDataLabels: true,
+
+                              //Параметры текста областей
                               dataLabelSettings: const MapDataLabelSettings(
                                   overflowMode: MapLabelOverflow.ellipsis,
                                   textStyle: TextStyle(
@@ -151,6 +173,8 @@ class HomeState extends State<Home> {
                                   selectedIndex = index;
                                 });
                               },
+
+                              // Параметры Выделения областей
                               selectionSettings: const MapSelectionSettings(
                                 color: Color(0x400e2283),
                                 strokeColor: Colors.red,
